@@ -47,14 +47,34 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         //TODO 11.1 Get references to the widgets
+        recyclerView = findViewById(R.id.charaRecyclerView);
+        imageViewAdded = findViewById(R.id.imageViewAdded);
+        ArrayList<Integer> dataset = new ArrayList<>();
+        dataset.add(R.drawable.eevee);
+        dataset.add(R.drawable.bulbasaur);
+        dataset.add(R.drawable.gyrados);
+        dataset.add(R.drawable.pikachu);
+        dataset.add(R.drawable.psyduck);
+        dataset.add(R.drawable.snorlax);
+        dataset.add(R.drawable.spearow);
+        dataset.add(R.drawable.squirtle);
+        dataSource = Utils.firstLoadImages(MainActivity.this,dataset);
 
         //TODO 12.7 Load the Json string from shared Preferences
         //TODO 12.8 Initialize your dataSource object with the Json string
+        mPreferences = getSharedPreferences(PREF_FILE,MODE_PRIVATE);
+        String json = mPreferences.getString(KEY_DATA,"");
+        if(!json.isEmpty()) {
+            Gson gson = new Gson();
+            dataSource = gson.fromJson(json, DataSource.class);
+        }
 
         //TODO 11.2 Create your dataSource object by calling Utils.firstLoadImages
         //TODO 11.3 --> Go to CharaAdapter
         //TODO 11.8 Complete the necessary code to initialize your RecyclerView
-
+        charaAdapter = new CharaAdapter(MainActivity.this,dataSource);
+        recyclerView.setLayoutManager(new GridLayoutManager(this,3));
+        recyclerView.setAdapter(charaAdapter);
         //TODO 12.9 [OPTIONAL] Add code to delete a RecyclerView item upon swiping. See notes for the code.
 
 
@@ -75,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
+        SharedPreferences.Editor editor = mPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(dataSource);
+        editor.putString(KEY_DATA,json);
+        editor.apply();
     }
 
 
@@ -106,6 +131,12 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if( requestCode == REQUEST_CODE_IMAGE && resultCode == Activity.RESULT_OK){
+            String name = data.getStringExtra(DataEntry.KEY_NAME);
+            String path = data.getStringExtra(DataEntry.KEY_PATH);
+            dataSource.addData(name, path);
+            imageViewAdded.setImageBitmap(Utils.loadImageFromStorage(path, name));
+            Toast.makeText(this, "new image added", Toast.LENGTH_SHORT).show();
+            charaAdapter.notifyDataSetChanged();
         }
 
 

@@ -27,6 +27,7 @@ public class CharaAdapter extends RecyclerView.Adapter<CharaAdapter.CharaViewHol
     CharaAdapter(Context context, DataSource dataSource){
         mInflater = LayoutInflater.from(context);
         this.context = context;
+        this.dataSource = dataSource;
     }
 
 
@@ -41,11 +42,18 @@ public class CharaAdapter extends RecyclerView.Adapter<CharaAdapter.CharaViewHol
     //TODO 11.6 the data at position i is extracted and placed on the i-th card
     @Override
     public void onBindViewHolder(@NonNull CharaViewHolder charaViewHolder, int i) {
+        Bitmap image = dataSource.getImage(i);
+        String name = dataSource.getName(i);
+        charaViewHolder.textViewName.setText(name);
+        charaViewHolder.imageViewChara.setImageBitmap(image);
     }
 
     //TODO 11.7 the total number of data points must be returned here
     @Override
     public int getItemCount() {
+        if(dataSource != null) {
+            return dataSource.getSize();
+        }
         return 0;
     }
 
@@ -57,6 +65,8 @@ public class CharaAdapter extends RecyclerView.Adapter<CharaAdapter.CharaViewHol
 
         CharaViewHolder(View view){
             super(view);
+            imageViewChara = view.findViewById(R.id.cardViewImage);
+            textViewName = view.findViewById(R.id.cardViewTextName);
         }
 
     }

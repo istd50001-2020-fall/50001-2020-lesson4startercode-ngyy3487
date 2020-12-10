@@ -56,7 +56,14 @@ public class DataEntry extends AppCompatActivity {
         buttonOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                int resultCode = Activity.RESULT_OK;
+                Intent intent = new Intent();
+                String name = editTextNameEntry.getText().toString();
+                String path = Utils.saveToInternalStorage(bitmap,name,DataEntry.this);
+                intent.putExtra(KEY_NAME,name);
+                intent.putExtra(KEY_PATH,path);
+                setResult(resultCode,intent);
+                finish();
             }
         });
 
@@ -68,7 +75,14 @@ public class DataEntry extends AppCompatActivity {
     //TODO 12.3 Write onActivityResult to get the image selected
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
-
+            Uri fullPhotoUri = data.getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),fullPhotoUri);
+                imageViewSelected.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            imageViewSelected.setImageURI(fullPhotoUri);
         }
     }
 }
